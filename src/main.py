@@ -125,7 +125,7 @@ def extract_build(build_name, build_files_dir, work_dir):
     return (exalt_version,)
 
 
-def output_build(prod_name, build_name, app_settings, work_dir, publish_dir, exalt_version=""):
+def output_build(prod_name, build_name, app_settings: AppSettings, work_dir: Path, publish_dir: Path, exalt_version=""):
     """
     Performs the final steps for outputting a build after archival/extraction.
     * Writes the current timestamp.txt
@@ -158,8 +158,22 @@ def output_build(prod_name, build_name, app_settings, work_dir, publish_dir, exa
         logger.log(logging.INFO, f"Deleting {publish_dir_current}")
         shutil.rmtree(publish_dir_current)
 
+    # Copy Files to output
     logger.log(logging.INFO, f"Copying files to {publish_dir_current}")
     shutil.copytree(work_dir, publish_dir_current)
+
+    # Generate current.zip
+    logger.log(logging.INFO, f"Creating current.zip")
+
+    current_zip = publish_dir / "current.zip"
+    if current_zip.exists():
+        current_zip.unlink()
+
+    shutil.make_archive(
+        base_name=publish_dir / "current",
+        format="zip",
+        root_dir=publish_dir_current
+    )
 
     # send webhook, after files have been copied
     if diff and build_name == "Client":
