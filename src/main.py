@@ -146,6 +146,10 @@ def output_build(prod_name, build_name, app_settings: AppSettings, work_dir: Pat
     if build_name == "Client" and exalt_version != "":
         publish_dir_buildhash = publish_dir / f"{exalt_version} - {app_settings['build_hash']}"
 
+    if publish_dir_buildhash.exists():
+        logger.log(logging.INFO, f"Deleting {publish_dir_buildhash}")
+        shutil.rmtree(publish_dir_buildhash)
+
     logger.log(logging.INFO, f"Copying files to {publish_dir_buildhash}")
     shutil.copytree(work_dir, publish_dir_buildhash)
 
