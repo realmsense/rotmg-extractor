@@ -140,12 +140,18 @@ def output_build(prod_name, build_name, app_settings: AppSettings, work_dir: Pat
 
     logger.log(logging.INFO, f"Copying output files...")
 
-    publish_dir_buildhash: Path = publish_dir / app_settings['build_hash']
+    publish_dir_buildhash: Path = publish_dir / app_settings["build_hash"]
     publish_dir_current: Path = publish_dir / "current"
 
     if build_name == "Client" and exalt_version != "":
         publish_dir_buildhash = publish_dir / f"{exalt_version} - {app_settings['build_hash']}"
 
+    # calculate diff for webhook
+    diff = None
+    if Constants.DISCORD_WEBHOOK_URL != "" and publish_dir_current.exists():
+        diff = diff_directories(work_dir / "extracted_assets", publish_dir_current / "extracted_assets")
+
+    # Delete and copy files to /output/{build_hash}
     if publish_dir_buildhash.exists():
         logger.log(logging.INFO, f"Deleting {publish_dir_buildhash}")
         shutil.rmtree(publish_dir_buildhash)
@@ -153,22 +159,16 @@ def output_build(prod_name, build_name, app_settings: AppSettings, work_dir: Pat
     logger.log(logging.INFO, f"Copying files to {publish_dir_buildhash}")
     shutil.copytree(work_dir, publish_dir_buildhash)
 
-    # calculate diff for webhook
-    diff = None
-    if Constants.DISCORD_WEBHOOK_URL != "" and publish_dir_current.exists():
-        diff = diff_directories(work_dir / "extracted_assets", publish_dir_current / "extracted_assets")
-
+    # Delete and copy files to /output/current
     if publish_dir_current.exists():
         logger.log(logging.INFO, f"Deleting {publish_dir_current}")
         shutil.rmtree(publish_dir_current)
 
-    # Copy Files to output
     logger.log(logging.INFO, f"Copying files to {publish_dir_current}")
     shutil.copytree(work_dir, publish_dir_current)
 
-    # Generate current.zip
+    # Create current.zip
     logger.log(logging.INFO, f"Creating current.zip")
-
     current_zip = publish_dir / "current.zip"
     if current_zip.exists():
         current_zip.unlink()
@@ -179,7 +179,7 @@ def output_build(prod_name, build_name, app_settings: AppSettings, work_dir: Pat
         root_dir=publish_dir_current
     )
 
-    # send webhook, after files have been copied
+    # send webhook, after all files have been copied
     if diff and build_name == "Client":
         logger.log(logging.INFO, "Sending discord webhook")
 
