@@ -183,11 +183,11 @@ def output_build(prod_name, build_name, app_settings: AppSettings, work_dir: Pat
     if diff and build_name == "Client":
         logger.log(logging.INFO, "Sending discord webhook")
 
-        url = f"{Constants.WEBSERVER_URL}" + str(publish_dir_buildhash.relative_to(Constants.PUBLISH_DIR)) + "/"
+        url = f"{Constants.WEBSERVER_URL}/" + str(publish_dir_buildhash.relative_to(Constants.PUBLISH_DIR)) + "/"
         url = url.replace("\\", "/")
 
         webhook_json =  {
-            "content": f"A new RotMG Exalt Client has been made public! <@&{Constants.DISCORD_WEBHOOK_ROLE}>",
+            "content": Constants.DISCORD_WEBHOOK_MESSAGE,
             "embeds": [
                 {
                     "color": None,

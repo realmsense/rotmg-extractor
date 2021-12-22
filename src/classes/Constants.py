@@ -1,4 +1,7 @@
 import pathlib
+from dotenv import dotenv_values
+
+ENV = dotenv_values()
 
 #############
 # URL Hosts #
@@ -12,11 +15,11 @@ ROTMG_URLS = {
     "Testing5":   "https://rotmgtesting5.appspot.com"
 }
 
-WEBSERVER_URL = "https://rotmg.extacy.cc/"
+WEBSERVER_URL = ENV["HTTP"] + ENV["EXTRACTOR_URL"]
 
 # add webhook url + role id to send a discord message when a new Client build is released
-DISCORD_WEBHOOK_URL = ""
-DISCORD_WEBHOOK_ROLE = ""
+DISCORD_WEBHOOK_URL = ENV["EXTRACTOR_WEBHOOK_URL"]
+DISCORD_WEBHOOK_MESSAGE = ENV["EXTRACTOR_WEBHOOK_MESSAGE"]
 
 #############
 # URL Paths #

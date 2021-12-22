@@ -1,11 +1,5 @@
-# vscode
-*.code-workspace
-.vscode
-
-# python
 venv
 __pycache__
-
-# source
-src/test.py
+.vscode
 output/
+.env
