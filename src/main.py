@@ -168,16 +168,17 @@ def output_build(prod_name, build_name, app_settings: AppSettings, work_dir: Pat
     shutil.copytree(work_dir, publish_dir_current)
 
     # Create current.zip
-    logger.log(logging.INFO, f"Creating current.zip")
-    current_zip = publish_dir / "current.zip"
-    if current_zip.exists():
-        current_zip.unlink()
+    if Constants.CREATE_CURRENT_ZIP:
+        logger.log(logging.INFO, f"Creating current.zip")
+        current_zip = publish_dir / "current.zip"
+        if current_zip.exists():
+            current_zip.unlink()
 
-    shutil.make_archive(
-        base_name=publish_dir / "current",
-        format="zip",
-        root_dir=publish_dir_current
-    )
+        shutil.make_archive(
+            base_name=publish_dir / "current",
+            format="zip",
+            root_dir=publish_dir_current
+        )
 
     # send webhook, after all files have been copied
     if diff and build_name == "Client":
@@ -227,7 +228,9 @@ def main():
     for prod_name in prod_names:
         app_settings = AppSettings(Constants.ROTMG_URLS[prod_name])
         full_build_extract(prod_name, "Client", app_settings.client)
-        full_build_extract(prod_name, "Launcher", app_settings.launcher)
+
+        if Constants.EXTRACT_LAUNCHER:
+            full_build_extract(prod_name, "Launcher", app_settings.launcher)
 
     logger.log(logging.INFO, "Done!")
 

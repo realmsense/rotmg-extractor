@@ -3,17 +3,28 @@ from dotenv import dotenv_values
 
 ENV = dotenv_values()
 
+###############
+# Preferences #
+###############
+CREATE_CURRENT_ZIP = ENV["EXTRACTOR_CURRENT_ZIP"] == "true"
+TESTING_BUILDS = ENV["EXTRACTOR_TESTING_BUILDS"] == "true"
+EXTRACT_LAUNCHER = ENV["EXTRACTOR_LAUNCHER"] == "true"
+
+
 #############
 # URL Hosts #
 #############
 ROTMG_URLS = {
-    "Production": "https://realmofthemadgod.appspot.com",
-    "Testing":    "https://rotmgtesting.appspot.com",
-    "Testing2":   "https://realmtesting2.appspot.com",
-    "Testing3":   "https://rotmgtesting3.appspot.com",
-    "Testing4":   "https://rotmgtesting4.appspot.com",
-    "Testing5":   "https://rotmgtesting5.appspot.com"
+    "Production": "https://realmofthemadgod.appspot.com"
 }
+
+if TESTING_BUILDS:
+    ROTMG_URLS["Testing"]  =  "https://rotmgtesting.appspot.com"
+    ROTMG_URLS["Testing2"] =  "https://realmtesting2.appspot.com"
+    ROTMG_URLS["Testing3"] =  "https://rotmgtesting3.appspot.com"
+    ROTMG_URLS["Testing4"] =  "https://rotmgtesting4.appspot.com"
+    ROTMG_URLS["Testing5"] =  "https://rotmgtesting5.appspot.com"
+
 
 WEBSERVER_URL = ENV["HTTP"] + ENV["EXTRACTOR_URL"]
 
