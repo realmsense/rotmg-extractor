@@ -5,6 +5,8 @@ import subprocess
 import re as regex
 import ntpath
 import UnityPy
+import requests
+import shutil
 from pathlib import Path
 # from xml.etree import ElementTree
 
@@ -301,3 +303,48 @@ def dump_il2cpp(gameassembly: Path, metadata_file: Path, output_dir: Path):
 
     logger.log(logging.INFO, "Done!")
     IndentFilter.level -= 1
+
+
+def run_ida_script(gameassembly: Path, work_dir: Path):
+    
+    if not Constants.IDA_ENABLED:
+        logger.log(logging.INFO, "Skipping IDA script")
+        return
+
+    logger.log(logging.INFO, "Generating IDA database and running script...")
+    IndentFilter.level += 1
+
+    # Copy gameassembly to ida workdir
+    logger.log(logging.INFO, f"Copying {gameassembly} to {Constants.IDA_WORKDIR}")
+    shutil.copy(gameassembly, Constants.IDA_WORKDIR)
+
+    # TODO: modify IDA to run the Il2cppInspector script
+    ida_command = f"ida.sh -c -A -Sanalysis.idc /root/ida/{gameassembly.name}"
+
+    if Constants.IDA_SERVER != "" and Constants.IDA_SERVER is not None:
+        logger.log(logging.INFO, f"Sending HTTP Request: {Constants.IDA_SERVER} {ida_command}")
+
+        params = {
+            "command": ida_command,
+            "auth": Constants.IDA_AUTH,
+        }
+
+        res = requests.post(Constants.IDA_SERVER, params=params)
+        logger.log(logging.INFO, f"IDA Server Response: {res.text}")
+
+        i64_files = list(Constants.IDA_WORKDIR.glob("*.i64"))
+        if len(i64_files) == 0:
+            logger.log(logging.INFO, f"Could not find a generated *.i64 file! Aborting.")
+            print(list(Constants.IDA_WORKDIR.glob("*")))
+            return
+
+        i64_file = i64_files[0]
+        logger.log(logging.INFO, f"Copying {i64_file} to {work_dir}")
+        shutil.copy(i64_files[0], work_dir)
+
+        IndentFilter.level -= 1
+        return
+
+    # TODO: run IDA binary on local fs (windows)
+    # Use Constants.IDA_CMD
+    pass

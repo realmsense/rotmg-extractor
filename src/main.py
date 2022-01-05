@@ -122,6 +122,8 @@ def extract_build(build_name, build_files_dir, work_dir):
     dump_output = work_dir / "il2cpp_dump"
     dump_il2cpp(gameassembly, metadata, dump_output)
     
+    run_ida_script(gameassembly, work_dir)
+
     return (exalt_version,)
 
 
@@ -242,4 +244,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
